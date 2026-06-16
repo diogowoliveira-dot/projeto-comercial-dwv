@@ -167,6 +167,8 @@ h2{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.02
 .arch-comp .sq{width:6px;height:6px;border:1px solid var(--muted);flex-shrink:0;margin-top:5px;border-radius:1px}
 .arch-comp .cn{flex:1}
 .arch-comp .tag{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;padding-left:10px;margin-top:1px}
+.arch-comp .inc{flex-shrink:0;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border:1px solid var(--border);border-radius:100px;padding:3px 9px;white-space:nowrap;margin-top:1px}
+.add-chip .inc{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);border:1px solid var(--border);border-radius:100px;padding:2px 7px;white-space:nowrap}
 .arch-comp .rm{flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:-1px}
 .arch-comp .rm:hover{border-color:var(--red-line);color:var(--text);background:var(--red-soft)}
 
@@ -495,6 +497,13 @@ function buildSummary(animate){
   const sel=[...document.querySelectorAll('.svc.selected')].map(el=>el.dataset.id);
   const frentes=STEPS.map(s=>({nome:s.titulo, itens:s.itens.filter(it=>sel.includes(it.id))})).filter(f=>f.itens.length);
 
+  /* plano cobrado: só itens DESSE plano movem o preço; os de baixo vêm "incluídos" */
+  const counts={E:0,A:0,N:0};
+  [...document.querySelectorAll('.svc.selected')].forEach(el=>counts[el.dataset.plan]++);
+  let cobrado=null; ['N','A','E'].forEach(p=>{if(!cobrado&&counts[p]>0)cobrado=p;});
+  const tierVal={E:0,A:1,N:2};
+  const isIncluded=plan=> cobrado && tierVal[plan]<tierVal[cobrado];
+
   /* métricas */
   const{mensal}=calc();
   const metrics=[
@@ -511,7 +520,7 @@ function buildSummary(animate){
   let archHTML='';
   if(frentes.length){
     archHTML=frentes.map((f,i)=>{
-      const comps=f.itens.map(it=>`<div class="arch-comp"><span class="sq"></span><span class="cn">${it.nome}</span>${it.extra?`<span class="tag">${it.extra}</span>`:''}<button class="rm" onclick="toggleService('${it.id}')" title="Remover" aria-label="Remover ${it.nome}">&times;</button></div>`).join('');
+      const comps=f.itens.map(it=>`<div class="arch-comp"><span class="sq"></span><span class="cn">${it.nome}</span>${it.extra?`<span class="tag">${it.extra}</span>`:''}${isIncluded(it.plan)?'<span class="inc" title="Já incluído no plano do projeto — não altera o valor">incluído</span>':''}<button class="rm" onclick="toggleService('${it.id}')" title="Remover" aria-label="Remover ${it.nome}">&times;</button></div>`).join('');
       return `<div class="arch-mod"><div class="arch-num">${String(i+1).padStart(2,'0')}</div><div class="arch-body"><div class="arch-name">${f.nome}</div>${comps}</div></div>`;
     }).join('');
   }else{
@@ -522,7 +531,7 @@ function buildSummary(animate){
   const disponiveis=STEPS.map(s=>({nome:s.titulo, itens:s.itens.filter(it=>!sel.includes(it.id))})).filter(f=>f.itens.length);
   if(editMode){
     const groups=disponiveis.length?disponiveis.map(f=>{
-      const chips=f.itens.map(it=>`<button class="add-chip" onclick="toggleService('${it.id}')"><i>+</i>${it.nome}${it.extra?`<span class="tag">${it.extra}</span>`:''}</button>`).join('');
+      const chips=f.itens.map(it=>`<button class="add-chip" onclick="toggleService('${it.id}')"><i>+</i>${it.nome}${it.extra?`<span class="tag">${it.extra}</span>`:''}${isIncluded(it.plan)?'<span class="inc">incluído</span>':''}</button>`).join('');
       return `<div class="add-group"><div class="gh">${f.nome}</div><div class="add-chips">${chips}</div></div>`;
     }).join(''):`<p class="add-empty">Todas as ações disponíveis já estão no projeto.</p>`;
     archHTML+=`<div class="add-wrap"><div class="add-head"><div><h4>Adicionar ações ao projeto</h4><p>Toque para incluir — o investimento recalcula na hora.</p></div><button class="add-done" onclick="setEdit(false)">Concluir</button></div>${groups}</div>`;
