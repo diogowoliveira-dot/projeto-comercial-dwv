@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto Comercial · DWV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1B1B1E;
+  --surface:#232327;
+  --surface-2:#2A2A2F;
+  --border:#36363B;
+  --border-soft:#2E2E33;
+  --red:#C8C8CC;
+  --red-soft:rgba(200,200,204,.08);
+  --red-line:rgba(200,200,204,.32);
+  --text:#F4F4F5;
+  --muted:#9A9AA0;
+  --faint:#5A5A60;
+  --display:'Space Grotesk',sans-serif;
+  --body:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+.wrap{max-width:760px;margin:0 auto;padding:40px 24px 96px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:36px}
+.brand{display:flex;align-items:center;gap:13px}
+.brand img{width:38px;height:38px;object-fit:contain}
+.brand b{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:.01em}
+.brand span{display:block;font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-top:1px}
+.counter{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em;border:1px solid var(--border);border-radius:8px;padding:8px 14px}
+.counter b{color:var(--text);font-weight:600}
+
+.prog{height:3px;background:var(--border-soft);border-radius:100px;margin-bottom:8px;overflow:hidden}
+.prog-fill{height:100%;width:0;background:var(--red);border-radius:100px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prog-label{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin-bottom:40px}
+
+.step{display:none}
+.step.on{display:block;animation:fade .45s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.eyebrow{font-family:var(--mono);font-size:11px;color:var(--red);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+h1{font-family:var(--display);font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.15;margin-bottom:12px}
+h2{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px}
+.lead{color:var(--muted);font-size:15px;max-width:540px;margin-bottom:34px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+.field label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.field input{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--text);font-family:var(--body);font-size:14.5px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field input::placeholder{color:var(--faint)}
+.field input:focus{border-color:var(--red-line);box-shadow:0 0 0 3px var(--red-soft)}
+.field input[type=date]{color-scheme:dark}
+
+.svcs{display:flex;flex-direction:column;gap:11px;margin-bottom:36px}
+.svc{position:relative;display:flex;align-items:flex-start;gap:15px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px;cursor:pointer;transition:border-color .2s,background .2s;user-select:none}
+.svc:hover{border-color:#34343a;background:var(--surface-2)}
+.svc .box{flex-shrink:0;width:22px;height:22px;border-radius:7px;border:1.5px solid var(--faint);margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.svc .box svg{width:12px;height:12px;stroke:#0E0E10;stroke-width:3;fill:none;opacity:0;transition:opacity .15s}
+.svc .txt h3{font-family:var(--display);font-size:15.5px;font-weight:500;letter-spacing:-.01em;margin-bottom:3px}
+.svc .txt p{color:var(--muted);font-size:13px;line-height:1.5}
+.svc .extra{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--red);background:var(--red-soft);border:1px solid var(--red-line);padding:3px 9px;border-radius:100px}
+.svc.selected{border-color:var(--red-line);background:linear-gradient(180deg,var(--red-soft),transparent)}
+.svc.selected .box{background:var(--red);border-color:var(--red)}
+.svc.selected .box svg{opacity:1}
+
+.nav{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.btn{font-family:var(--display);font-size:14.5px;font-weight:500;border-radius:10px;padding:14px 30px;cursor:pointer;border:none;outline:none;transition:transform .15s,background .2s,border-color .2s}
+.btn-primary{background:#E6E6E8;color:#0E0E10}
+.btn-primary:hover{background:#F2F2F3;transform:translateY(-1px)}
+.btn-primary:active{transform:none}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:#34343a}
+.nav-hint{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em}
+.nav-hint b{color:var(--red);font-weight:600}
+
+.sum-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;padding:24px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:30px}
+.sum-meta .m span{display:block;font-family:var(--mono);font-size:9.5px;color:var(--faint);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.sum-meta .m b{font-family:var(--display);font-size:14.5px;font-weight:500}
+.sum-cat{margin-bottom:24px}
+.sum-cat>.h{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.sum-line{display:flex;align-items:flex-start;gap:11px;padding:8px 0;font-size:14px;color:#DEDEE0;border-bottom:1px solid var(--border-soft)}
+.sum-line::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:8px}
+.sum-line .tag{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--red);white-space:nowrap;padding-left:10px}
+
+.tl{margin:30px 0;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:14px}
+.tl .h{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px}
+.tl .h b{color:var(--red)}
+.tl-track{display:flex;gap:7px}
+.tl-ph{border-radius:10px;padding:14px 16px}
+.tl-ph.s{flex:30;background:var(--red-soft);border:1px solid var(--red-line)}
+.tl-ph.r{flex:60;background:var(--red-soft);border:1px solid var(--red-line)}
+.tl-ph .n{font-family:var(--display);font-size:14px;font-weight:500;display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.tl-ph .n span{font-family:var(--mono);font-size:10px;color:var(--red)}
+.tl-ph .d{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.tl-ph .d b{color:var(--text);font-weight:500}
+
+.inv{margin-top:30px;border:1px solid var(--red-line);border-radius:16px;overflow:hidden}
+.inv-main{background:var(--surface-2);padding:30px 32px;border-bottom:1px solid var(--border)}
+.inv-main .lbl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px}
+.inv-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.inv-val{font-family:var(--display);font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--text)}
+.inv-val small{font-family:var(--mono);font-size:13px;font-weight:400;color:var(--muted);margin-left:4px}
+.inv-pct{text-align:right}
+.inv-pct b{font-family:var(--display);font-size:30px;font-weight:600;color:var(--text);display:block;line-height:1}
+.inv-pct span{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:6px}
+.inv-break{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)}
+.inv-cell{background:var(--surface);padding:18px 20px}
+.inv-cell span{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px}
+.inv-cell b{font-family:var(--display);font-size:18px;font-weight:600}
+.note{margin-top:22px;padding:18px 22px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--red);border-radius:0 12px 12px 0;font-size:13.5px;color:#D0D0D2;line-height:1.6}
+.note b{color:var(--text)}
+
+/* proposta */
+.prop-cover{padding-bottom:26px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.prop-cover h1{font-size:34px;margin:10px 0 14px}
+.prop-metaline{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.03em;display:flex;flex-wrap:wrap;gap:8px 20px}
+.prop-metaline .mi{display:flex;gap:7px;align-items:baseline}
+.prop-metaline .mi i{font-style:normal;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;font-size:9.5px}
+.prop-metaline .mi b{color:var(--text);font-weight:500}
+.prop-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.metric span{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:9px}
+.metric b{font-family:var(--display);font-size:23px;font-weight:600;letter-spacing:-.01em;line-height:1}
+.metric b small{font-size:12px;font-weight:400;color:var(--muted);font-family:var(--mono);margin-left:2px}
+.sec{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin:42px 0 6px;display:flex;align-items:center;gap:14px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec-sub{color:var(--muted);font-size:14px;max-width:540px;margin-bottom:24px}
+.arch{position:relative;margin:6px 0 8px}
+.arch::before{content:'';position:absolute;left:17px;top:8px;bottom:8px;width:1px;background:var(--border)}
+.arch-mod{position:relative;display:grid;grid-template-columns:34px 1fr;gap:20px;padding-bottom:24px}
+.arch-mod:last-child{padding-bottom:0}
+.arch-num{position:relative;z-index:1;width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500}
+.arch-name{font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:-.01em;margin:5px 0 12px}
+.arch-comp{display:flex;align-items:flex-start;gap:11px;padding:8px 0;font-size:13.5px;color:#D6D6D9;border-top:1px solid var(--border-soft)}
+.arch-comp:first-of-type{border-top:none;padding-top:0}
+.arch-comp .sq{width:6px;height:6px;border:1px solid var(--muted);flex-shrink:0;margin-top:5px;border-radius:1px}
+.arch-comp .tag{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;padding-left:10px}
+
+@media (max-width:680px){
+  .grid{grid-template-columns:1fr}
+  .wrap{padding:28px 18px 72px}
+  .inv-break{grid-template-columns:1fr}
+  .tl-track{flex-direction:column}
+  .inv-val{font-size:36px}
+  .prop-metrics{grid-template-columns:1fr 1fr}
+  .prop-cover h1{font-size:27px}
+}
+@media print{.nav,.prog,.prog-label,.counter{display:none!important}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <img src="https://site.dwvapp.com.br/wp-content/uploads/2025/07/cropped-cropped-Prancheta-1@2x-8.png" alt="DWV">
+      <div><b>DWV</b><span>Projeto Comercial</span></div>
+    </div>
+    <div class="counter"><b id="cnt">0</b> serviços</div>
+  </div>
+
+  <div class="prog"><div class="prog-fill" id="progfill"></div></div>
+  <div class="prog-label" id="proglabel">Início</div>
+
+  <div id="screens"></div>
+
+</div>
+
+<script>
+const PLAN={
+  E:{piso:828,  teto:1200, inc:124},
+  A:{piso:1590, teto:2500, inc:91},
+  N:{piso:5200, teto:8000, inc:280}
+};
+const SETUP_DAYS=30, RAMPUP_DAYS=60, IMPLEMENTACAO=5800;
+
+const STEPS=[
+  {eyebrow:'Etapa 1 · Exibição', titulo:'Exibição e apresentação', sub:'Como o empreendimento aparece para corretores e clientes.', itens:[
+    {id:'i1', plan:'E', nome:'Exibição no Marketplace da DWV', desc:'Fotos, plantas, vídeos, tour virtual e progresso de obra — 80 mil corretores.'},
+    {id:'i2', plan:'E', nome:'Gerador de Landing Pages ilimitadas', desc:'Páginas personalizadas por corretor, sem limite.'},
+    {id:'i9', plan:'A', nome:'12 Stories na plataforma', desc:'Veiculação de stories dentro da plataforma DWV.'},
+    {id:'i27',plan:'N', nome:'2 mil corretores no funil', desc:'Entrada de 2 mil corretores no funil do empreendimento.'}
+  ]},
+  {eyebrow:'Etapa 2 · Relacionamento', titulo:'Relacionamento com parceiros', sub:'O vínculo com os corretores e a entrada de propostas.', itens:[
+    {id:'i3', plan:'E', nome:'Central de ações de parceiros', desc:'Receba mensagens, propostas e acompanhe os top corretores.'},
+    {id:'i7', plan:'A', nome:'Receba e gerencie intenções de propostas', desc:'Análise individual por gerente, corretor e imobiliária.'},
+    {id:'i8', plan:'A', nome:'Construa sua rede social de corretores', desc:'Notificações e personalização do cadastro de parceiros.'}
+  ]},
+  {eyebrow:'Etapa 3 · Operação', titulo:'Operação e carteira', sub:'A gestão interna do time e das carteiras.', itens:[
+    {id:'i4', plan:'E', nome:'Integração com outros CRMs imobiliários', desc:'Conecta a plataforma aos CRMs já usados pela operação.'},
+    {id:'i5', plan:'A', nome:'CRM completo com Kanban', desc:'Funil visual de parceiros e tarefas em quadro Kanban.'},
+    {id:'i10',plan:'A', nome:'Painel de gestão do time comercial', desc:'Histórico de atendimentos, divisão de carteiras e desempenho individual.'},
+    {id:'i13',plan:'A', nome:'Sistema de gestão de visitas presenciais', desc:'Controle de visitas em eventos, showroom e decorados.'}
+  ]},
+  {eyebrow:'Etapa 4 · Atendimento', titulo:'Atendimento automático', sub:'Inteligência artificial para nenhum corretor ou lead ficar sem resposta.', itens:[
+    {id:'i6', plan:'A', nome:'IA personalizada para autoatendimento 24h', desc:'Responde os corretores pelo WhatsApp a qualquer hora.'},
+    {id:'i14',plan:'A', nome:'SDR por IA para qualificação de contatos', desc:'Pré-atendimento automático de clientes ou corretores.'}
+  ]},
+  {eyebrow:'Etapa 5 · Disparos', titulo:'Disparos e ativação', sub:'Comunicação ativa com a base de corretores.', itens:[
+    {id:'i11',plan:'A', nome:'Separação da base em grupos pra disparo', desc:'Organização da base em segmentos para ativações.'},
+    {id:'i12',plan:'A', nome:'E-mail marketing', desc:'Campanhas de e-mail para ativação de parceiros.'},
+    {id:'i15',plan:'A', nome:'Campanhas pelo WhatsApp', desc:'Disparos pela API oficial do WhatsApp.', extra:'+ R$ 0,60 por mensagem'},
+    {id:'i18',plan:'N', nome:'Ativação de base de corretores ociosos', desc:'Reativação dos corretores parados na base.'}
+  ]},
+  {eyebrow:'Etapa 6 · Aquisição', titulo:'Aquisição com tráfego', sub:'Atração de novos corretores e clientes com mídia paga.', itens:[
+    {id:'i19',plan:'N', nome:'Arquitetura para cliente final', desc:'Campanha no Meta + SDR virtual + Kanban + Roleta.'},
+    {id:'i20',plan:'N', nome:'Arquitetura para atrair corretores', desc:'Campanha no Meta + SDR virtual + Kanban + Roleta.'},
+    {id:'i21',plan:'N', nome:'1 Webinar estruturado pela DWV', desc:'Apresentação online do empreendimento para a base.'}
+  ]},
+  {eyebrow:'Etapa 7 · Inteligência', titulo:'Pesquisas e inteligência', sub:'Diagnóstico do mercado e da operação antes de agir.', itens:[
+    {id:'i16',plan:'N', nome:'Inteligência de mercado', desc:'Insights de mercado para decisões estratégicas.'},
+    {id:'i23',plan:'N', nome:'Pesquisas de satisfação de corretores', desc:'Avaliação dos parceiros sobre equipe comercial e produto.'},
+    {id:'i24',plan:'N', nome:'Comparação com concorrentes', desc:'Tabela, entrega, prazo, metro quadrado e diferenciais.'},
+    {id:'i25',plan:'N', nome:'Diagnóstico comercial do setor de parcerias', desc:'Análise de performance do canal de parcerias.'}
+  ]},
+  {eyebrow:'Etapa 8 · Suporte', titulo:'Material e suporte estratégico', sub:'Argumento de venda estruturado e acompanhamento dedicado.', itens:[
+    {id:'i26',plan:'N', nome:'Playbook comercial', desc:'Tese de investimento e mapeamento de objeções.'},
+    {id:'i17',plan:'N', nome:'Concierge dedicada', desc:'Suporte direto ao time: campanhas em todos os canais, setups e ativação da base ociosa.'}
+  ]}
+];
+
+const TOTAL_STEPS=STEPS.length+2;
+let current=0;
+
+const screens=document.getElementById('screens');
+
+function fieldsHTML(){
+  return `<section class="step" data-i="0">
+    <div class="eyebrow">Início do projeto</div>
+    <h1>Vamos desenhar o seu projeto comercial.</h1>
+    <p class="lead">Selecione, etapa por etapa, as ações que vão compor o plano de vendas do seu empreendimento. Ao final, geramos o escopo e o investimento.</p>
+    <div class="grid">
+      <div class="field full"><label>Nome da empresa</label><input id="f-empresa" placeholder="Incorporadora / Construtora"></div>
+      <div class="field"><label>Responsável</label><input id="f-resp" placeholder="Nome do responsável"></div>
+      <div class="field"><label>Contato</label><input id="f-contato" placeholder="Telefone ou e-mail"></div>
+      <div class="field"><label>Cidade</label><input id="f-cidade" placeholder="Cidade"></div>
+      <div class="field"><label>Data da apresentação</label><input type="date" id="f-data"></div>
+      <div class="field"><label>Data de início do projeto</label><input type="date" id="f-inicio"></div>
+      <div class="field"><label>Representante DWV</label><input id="f-rep" placeholder="Nome do vendedor DWV"></div>
+      <div class="field full"><label>VGV destinado à venda (R$)</label><input id="f-vgv" inputmode="numeric" placeholder="Ex.: 80.000.000"></div>
+    </div>
+    <div class="nav"><span></span><button class="btn btn-primary" onclick="go(1)">Iniciar projeto →</button></div>
+  </section>`;
+}
+
+function stepHTML(s,idx){
+  const n=idx+1;
+  const cards=s.itens.map(it=>`
+    <div class="svc" data-id="${it.id}" data-plan="${it.plan}" onclick="toggle(this)">
+      <div class="box"><svg viewBox="0 0 16 16"><path d="M2.5 8.5l3.5 3.5 7-8"/></svg></div>
+      <div class="txt"><h3>${it.nome}</h3><p>${it.desc}</p>${it.extra?`<span class="extra">${it.extra}</span>`:''}</div>
+    </div>`).join('');
+  return `<section class="step" data-i="${n}">
+    <div class="eyebrow">${s.eyebrow}</div>
+    <h2>${s.titulo}</h2>
+    <p class="lead">${s.sub}</p>
+    <div class="svcs">${cards}</div>
+    <div class="nav">
+      <button class="btn btn-ghost" onclick="go(${n-1})">← Voltar</button>
+      <span class="nav-hint" data-hint="${n}"></span>
+      <button class="btn btn-primary" onclick="go(${n+1})">${n===STEPS.length?'Gerar projeto →':'Próxima etapa →'}</button>
+    </div>
+  </section>`;
+}
+
+function summaryHTML(){
+  const n=TOTAL_STEPS-1;
+  return `<section class="step" data-i="${n}">
+    <div class="prop-cover">
+      <div class="eyebrow">Proposta · Projeto Comercial</div>
+      <h1 id="sum-title">Projeto Comercial</h1>
+      <div class="prop-metaline" id="prop-metaline"></div>
+    </div>
+
+    <div class="prop-metrics" id="prop-metrics"></div>
+
+    <div class="sec">Arquitetura do projeto</div>
+    <p class="sec-sub">As frentes selecionadas formam um sistema integrado de aceleração comercial, implantado em 90 dias.</p>
+    <div class="arch" id="arch"></div>
+
+    <div class="sec">Plano de implementação</div>
+    <p class="sec-sub">Trinta dias de preparação para estruturar a operação, seguidos de sessenta dias de aceleração das vendas.</p>
+    <div class="tl">
+      <div class="h">Cronograma · <b>90 dias</b></div>
+      <div class="tl-track">
+        <div class="tl-ph s"><div class="n">Preparação <span>30 dias</span></div><div class="d"><b id="tl-a">—</b> → <b id="tl-b">—</b></div></div>
+        <div class="tl-ph r"><div class="n">Aceleração das vendas <span>60 dias</span></div><div class="d"><b id="tl-c">—</b> → <b id="tl-d">—</b></div></div>
+      </div>
+    </div>
+
+    <div class="sec">Investimento</div>
+    <div class="inv">
+      <div class="inv-main">
+        <div class="lbl">Investimento mensal</div>
+        <div class="inv-row">
+          <div class="inv-val" id="inv-mensal">R$ 0<small>/ mês</small></div>
+          <div class="inv-pct" id="inv-pct"></div>
+        </div>
+      </div>
+      <div class="inv-break">
+        <div class="inv-cell"><span>Operação · 12 meses</span><b id="inv-anual">R$ 0</b></div>
+        <div class="inv-cell"><span>Implementação (única)</span><b>R$ 5.800</b></div>
+        <div class="inv-cell"><span>Total no 1º ano</span><b id="inv-total">R$ 0</b></div>
+      </div>
+    </div>
+    <div class="note"><b>Próximo passo:</b> aprovada a proposta, a DWV detalha o planejamento das entregas frente a frente ao longo dos 12 meses de projeto.</div>
+
+    <div class="nav" style="margin-top:34px">
+      <button class="btn btn-ghost" onclick="go(${n-1})">← Revisar seleção</button>
+      <button class="btn btn-primary" onclick="window.print()">Exportar proposta (PDF)</button>
+    </div>
+  </section>`;
+}
+
+screens.innerHTML=fieldsHTML()+STEPS.map(stepHTML).join('')+summaryHTML();
+const allSteps=[...document.querySelectorAll('.step')];
+
+function go(n){
+  if(n===TOTAL_STEPS-1) buildSummary();
+  current=n;
+  allSteps.forEach(s=>s.classList.toggle('on',+s.dataset.i===n));
+  document.getElementById('progfill').style.width=(n/(TOTAL_STEPS-1)*100)+'%';
+  const labels=['Início',...STEPS.map(s=>s.titulo),'Proposta'];
+  document.getElementById('proglabel').textContent=labels[n];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggle(el){
+  el.classList.toggle('selected');
+  updateCount();
+}
+function updateCount(){
+  const all=[...document.querySelectorAll('.svc.selected')];
+  document.getElementById('cnt').textContent=all.length;
+  STEPS.forEach((s,i)=>{
+    const n=i+1;
+    const tot=s.itens.length;
+    const sel=document.querySelectorAll(`.step[data-i="${n}"] .svc.selected`).length;
+    const h=document.querySelector(`[data-hint="${n}"]`);
+    if(h) h.innerHTML=sel?`<b>${sel}</b> de ${tot} selecionados`:`Selecione as ações desejadas`;
+  });
+}
+
+function parseISO(v){if(!v)return null;const[y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d);}
+function addDays(dt,n){const d=new Date(dt.getTime());d.setDate(d.getDate()+n);return d;}
+function fmtBR(d){if(!d)return'';return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
+function val(id){return document.getElementById(id).value.trim();}
+function money(n){return 'R$ '+Math.round(n).toLocaleString('pt-BR');}
+
+document.addEventListener('input',e=>{
+  if(e.target&&e.target.id==='f-vgv'){
+    const d=e.target.value.replace(/\D/g,'');
+    e.target.value=d?Number(d).toLocaleString('pt-BR'):'';
+  }
+});
+function vgvNum(){const d=val('f-vgv').replace(/\D/g,'');return d?Number(d):0;}
+
+function calc(){
+  const sel=[...document.querySelectorAll('.svc.selected')];
+  const counts={E:0,A:0,N:0};
+  sel.forEach(el=>counts[el.dataset.plan]++);
+  let cobrado=null;
+  ['N','A','E'].forEach(p=>{if(!cobrado&&counts[p]>0)cobrado=p;});
+  if(!cobrado)return{mensal:0,sel};
+  const cfg=PLAN[cobrado];
+  const mensal=Math.min(cfg.piso+(counts[cobrado]-1)*cfg.inc,cfg.teto);
+  return{mensal,sel};
+}
+
+let countTimer;
+function countUp(el,target,fmt){
+  clearInterval(countTimer);
+  const start=performance.now(),dur=900;
+  countTimer=setInterval(()=>{
+    const t=Math.min((performance.now()-start)/dur,1);
+    const e=1-Math.pow(1-t,3);
+    el.innerHTML=fmt(target*e);
+    if(t>=1)clearInterval(countTimer);
+  },16);
+}
+
+function propNumber(empresa){
+  const y=new Date().getFullYear();
+  let h=0; for(const c of (empresa||'DWV')) h=(h*31+c.charCodeAt(0))%9000;
+  return 'DWV-'+y+'-'+String(1000+h).padStart(4,'0');
+}
+
+function buildSummary(){
+  const empresa=val('f-empresa');
+  document.getElementById('sum-title').textContent=empresa?empresa:'Projeto Comercial';
+
+  const inicio=parseISO(val('f-inicio'));
+  const setupEnd=inicio?addDays(inicio,SETUP_DAYS):null;
+  const entrega=inicio?addDays(inicio,SETUP_DAYS+RAMPUP_DAYS):null;
+  const vgv=vgvNum();
+
+  /* capa: linha de metadados */
+  const metaParts=[
+    ['Proposta', propNumber(empresa)],
+    ['Representante', val('f-rep')],
+    ['Cidade', val('f-cidade')],
+    ['Apresentação', val('f-data')?fmtBR(parseISO(val('f-data'))):'']
+  ].filter(([,v])=>v);
+  document.getElementById('prop-metaline').innerHTML=metaParts
+    .map(([k,v])=>`<span class="mi"><i>${k}</i><b>${v}</b></span>`).join('');
+
+  /* seleção agrupada por frente (nunca por plano) */
+  const sel=[...document.querySelectorAll('.svc.selected')].map(el=>el.dataset.id);
+  const frentes=STEPS.map(s=>({nome:s.titulo, itens:s.itens.filter(it=>sel.includes(it.id))})).filter(f=>f.itens.length);
+
+  /* métricas */
+  const{mensal}=calc();
+  const metrics=[
+    ['Frentes ativadas', frentes.length],
+    ['Ações no projeto', sel.length],
+    ['Implementação', '90<small>dias</small>'],
+    ['Investimento', (mensal?money(mensal):'R$ 0')+'<small>/mês</small>']
+  ];
+  document.getElementById('prop-metrics').innerHTML=metrics
+    .map(([k,v])=>`<div class="metric"><span>${k}</span><b>${v}</b></div>`).join('');
+
+  /* arquitetura: módulos numerados */
+  const arch=document.getElementById('arch');
+  if(frentes.length){
+    arch.innerHTML=frentes.map((f,i)=>{
+      const comps=f.itens.map(it=>`<div class="arch-comp"><span class="sq"></span>${it.nome}${it.extra?`<span class="tag">${it.extra}</span>`:''}</div>`).join('');
+      return `<div class="arch-mod"><div class="arch-num">${String(i+1).padStart(2,'0')}</div><div class="arch-body"><div class="arch-name">${f.nome}</div>${comps}</div></div>`;
+    }).join('');
+  }else{
+    arch.innerHTML=`<p class="sec-sub">Nenhuma frente selecionada ainda — volte e escolha as ações do projeto.</p>`;
+  }
+
+  /* cronograma */
+  document.getElementById('tl-a').textContent=inicio?fmtBR(inicio):'—';
+  document.getElementById('tl-b').textContent=setupEnd?fmtBR(setupEnd):'—';
+  document.getElementById('tl-c').textContent=setupEnd?fmtBR(setupEnd):'—';
+  document.getElementById('tl-d').textContent=entrega?fmtBR(entrega):'—';
+
+  /* investimento */
+  const anual=mensal*12;
+  const total=anual+IMPLEMENTACAO;
+  document.getElementById('inv-anual').textContent=money(anual);
+  document.getElementById('inv-total').textContent=money(total);
+  countUp(document.getElementById('inv-mensal'),mensal,n=>money(n)+'<small>/ mês</small>');
+
+  const pct=document.getElementById('inv-pct');
+  if(vgv>0&&total>0){
+    const p=(total/vgv)*100;
+    const dec=p<0.01?3:2;
+    pct.innerHTML=`<b id="pctnum">0%</b><span>do seu VGV no 1º ano</span>`;
+    countUp(document.getElementById('pctnum'),p,n=>n.toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec})+'%');
+  }else pct.innerHTML='';
+}
+
+go(0);
+</script>
+</body>
+</html>
