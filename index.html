@@ -143,7 +143,27 @@ h2{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.02
 .arch-comp{display:flex;align-items:flex-start;gap:11px;padding:8px 0;font-size:13.5px;color:#D6D6D9;border-top:1px solid var(--border-soft)}
 .arch-comp:first-of-type{border-top:none;padding-top:0}
 .arch-comp .sq{width:6px;height:6px;border:1px solid var(--muted);flex-shrink:0;margin-top:5px;border-radius:1px}
-.arch-comp .tag{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;padding-left:10px}
+.arch-comp .cn{flex:1}
+.arch-comp .tag{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;padding-left:10px;margin-top:1px}
+.arch-comp .rm{flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:-1px}
+.arch-comp .rm:hover{border-color:var(--red-line);color:var(--text);background:var(--red-soft)}
+
+/* edição na proposta: adicionar ações */
+.add-toggle{display:inline-flex;align-items:center;gap:8px;margin:8px 0 0;font-family:var(--display);font-size:13.5px;font-weight:500;color:var(--muted);background:transparent;border:1px dashed var(--border);border-radius:10px;padding:11px 18px;cursor:pointer;transition:all .2s}
+.add-toggle:hover{color:var(--text);border-color:var(--red-line);background:var(--red-soft)}
+.add-wrap{margin:14px 0 8px;padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:14px}
+.add-wrap .add-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px}
+.add-wrap .add-head h4{font-family:var(--display);font-size:16px;font-weight:600}
+.add-wrap .add-head p{color:var(--muted);font-size:12.5px;margin-top:3px}
+.add-done{font-family:var(--mono);font-size:11px;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;letter-spacing:.04em;flex-shrink:0}
+.add-done:hover{color:var(--text);border-color:#34343a}
+.add-group{margin-top:18px}
+.add-group>.gh{font-family:var(--mono);font-size:9.5px;color:var(--faint);letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px}
+.add-chips{display:flex;flex-wrap:wrap;gap:8px}
+.add-chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#D6D6D9;background:var(--surface-2);border:1px solid var(--border);border-radius:100px;padding:8px 14px;cursor:pointer;transition:all .15s}
+.add-chip:hover{border-color:var(--red-line);color:var(--text);background:var(--red-soft)}
+.add-chip i{font-style:normal;color:var(--red);font-weight:600;font-size:14px}
+.add-empty{color:var(--faint);font-size:13px;font-family:var(--mono)}
 
 @media (max-width:680px){
   .grid{grid-template-columns:1fr}
@@ -154,7 +174,7 @@ h2{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.02
   .prop-metrics{grid-template-columns:1fr 1fr}
   .prop-cover h1{font-size:27px}
 }
-@media print{.nav,.prog,.prog-label,.counter{display:none!important}body{background:#fff;color:#000}}
+@media print{.nav,.prog,.prog-label,.counter,.arch-comp .rm,.add-toggle,.add-wrap{display:none!important}body{background:#fff;color:#000}}
 </style>
 </head>
 <body>
@@ -364,6 +384,14 @@ document.addEventListener('input',e=>{
 });
 function vgvNum(){const d=val('f-vgv').replace(/\D/g,'');return d?Number(d):0;}
 
+let editMode=false;
+function setEdit(v){editMode=v;buildSummary();}
+function toggleService(id){
+  const el=document.querySelector(`.svc[data-id="${id}"]`);
+  if(el){el.classList.toggle('selected');updateCount();}
+  buildSummary();
+}
+
 function calc(){
   const sel=[...document.querySelectorAll('.svc.selected')];
   const counts={E:0,A:0,N:0};
@@ -428,16 +456,30 @@ function buildSummary(){
   document.getElementById('prop-metrics').innerHTML=metrics
     .map(([k,v])=>`<div class="metric"><span>${k}</span><b>${v}</b></div>`).join('');
 
-  /* arquitetura: módulos numerados */
+  /* arquitetura: módulos numerados (com remoção inline) */
   const arch=document.getElementById('arch');
+  let archHTML='';
   if(frentes.length){
-    arch.innerHTML=frentes.map((f,i)=>{
-      const comps=f.itens.map(it=>`<div class="arch-comp"><span class="sq"></span>${it.nome}${it.extra?`<span class="tag">${it.extra}</span>`:''}</div>`).join('');
+    archHTML=frentes.map((f,i)=>{
+      const comps=f.itens.map(it=>`<div class="arch-comp"><span class="sq"></span><span class="cn">${it.nome}</span>${it.extra?`<span class="tag">${it.extra}</span>`:''}<button class="rm" onclick="toggleService('${it.id}')" title="Remover" aria-label="Remover ${it.nome}">&times;</button></div>`).join('');
       return `<div class="arch-mod"><div class="arch-num">${String(i+1).padStart(2,'0')}</div><div class="arch-body"><div class="arch-name">${f.nome}</div>${comps}</div></div>`;
     }).join('');
   }else{
-    arch.innerHTML=`<p class="sec-sub">Nenhuma frente selecionada ainda — volte e escolha as ações do projeto.</p>`;
+    archHTML=`<p class="sec-sub">Nenhuma frente selecionada ainda — adicione as ações do projeto abaixo.</p>`;
   }
+
+  /* menu de adição: frentes/itens ainda não selecionados */
+  const disponiveis=STEPS.map(s=>({nome:s.titulo, itens:s.itens.filter(it=>!sel.includes(it.id))})).filter(f=>f.itens.length);
+  if(editMode){
+    const groups=disponiveis.length?disponiveis.map(f=>{
+      const chips=f.itens.map(it=>`<button class="add-chip" onclick="toggleService('${it.id}')"><i>+</i>${it.nome}${it.extra?`<span class="tag">${it.extra}</span>`:''}</button>`).join('');
+      return `<div class="add-group"><div class="gh">${f.nome}</div><div class="add-chips">${chips}</div></div>`;
+    }).join(''):`<p class="add-empty">Todas as ações disponíveis já estão no projeto.</p>`;
+    archHTML+=`<div class="add-wrap"><div class="add-head"><div><h4>Adicionar ações ao projeto</h4><p>Toque para incluir — o investimento recalcula na hora.</p></div><button class="add-done" onclick="setEdit(false)">Concluir</button></div>${groups}</div>`;
+  }else if(disponiveis.length){
+    archHTML+=`<button class="add-toggle" onclick="setEdit(true)"><i style="font-style:normal;color:var(--red);font-weight:600">+</i> Adicionar mais ações</button>`;
+  }
+  arch.innerHTML=archHTML;
 
   /* cronograma */
   document.getElementById('tl-a').textContent=inicio?fmtBR(inicio):'—';
