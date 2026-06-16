@@ -117,6 +117,19 @@ h2{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.02
 .inv-cell{background:var(--surface);padding:18px 20px}
 .inv-cell span{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px}
 .inv-cell b{font-family:var(--display);font-size:18px;font-weight:600}
+/* layout proposta: seleção + preço lado a lado */
+.prop-edit{display:grid;grid-template-columns:1fr 350px;gap:32px;align-items:start;margin-top:8px}
+.pe-main{min-width:0}
+.pe-side{position:sticky;top:22px}
+.price-panel{display:flex;flex-direction:column}
+.price-panel .sec{margin:0 0 12px}
+.price-panel .sec:nth-of-type(2){margin-top:26px}
+.price-panel .inv-val{font-size:38px}
+.price-panel .inv-pct b{font-size:24px}
+.price-panel .inv-main{padding:24px 24px}
+.price-panel .pay-row{padding:16px 20px}
+.price-panel .pay-row .pv b{font-size:19px}
+
 .pay{margin-top:6px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
 .pay-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;background:var(--surface)}
 .pay-row+.pay-row{border-top:1px solid var(--border)}
@@ -174,6 +187,15 @@ h2{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.02
 .add-chip i{font-style:normal;color:var(--red);font-weight:600;font-size:14px}
 .add-empty{color:var(--faint);font-size:13px;font-family:var(--mono)}
 
+@media (min-width:901px){
+  /* a proposta usa toda a largura útil para caber seleção + preço lado a lado */
+  .step.prop-wide{width:min(1080px,94vw);margin-left:calc(50% - min(540px,47vw))}
+}
+@media (max-width:900px){
+  .prop-edit{grid-template-columns:1fr;gap:18px}
+  .pe-side{position:static}
+  .price-panel .sec:nth-of-type(2){margin-top:8px}
+}
 @media (max-width:680px){
   .grid{grid-template-columns:1fr}
   .wrap{padding:28px 18px 72px}
@@ -303,7 +325,7 @@ function stepHTML(s,idx){
 
 function summaryHTML(){
   const n=TOTAL_STEPS-1;
-  return `<section class="step" data-i="${n}">
+  return `<section class="step prop-wide" data-i="${n}">
     <div class="prop-cover">
       <div class="eyebrow">Proposta · Projeto Comercial</div>
       <h1 id="sum-title">Projeto Comercial</h1>
@@ -312,9 +334,44 @@ function summaryHTML(){
 
     <div class="prop-metrics" id="prop-metrics"></div>
 
-    <div class="sec">Arquitetura do projeto</div>
-    <p class="sec-sub">As frentes selecionadas formam um sistema integrado de aceleração comercial, implantado em 90 dias.</p>
-    <div class="arch" id="arch"></div>
+    <div class="prop-edit">
+      <div class="pe-main">
+        <div class="sec">Arquitetura do projeto</div>
+        <p class="sec-sub">Ajuste as frentes do projeto — toque para remover ou adicionar ações. O investimento ao lado recalcula na hora.</p>
+        <div class="arch" id="arch"></div>
+      </div>
+
+      <aside class="pe-side">
+        <div class="price-panel">
+          <div class="sec">Investimento</div>
+          <div class="inv">
+            <div class="inv-main">
+              <div class="lbl">Valor total do projeto</div>
+              <div class="inv-row">
+                <div class="inv-val" id="inv-total">R$ 0</div>
+                <div class="inv-pct" id="inv-pct"></div>
+              </div>
+            </div>
+            <div class="inv-break two">
+              <div class="inv-cell"><span>Implementação</span><b>R$ 5.800</b></div>
+              <div class="inv-cell"><span>Projeto · 12 meses</span><b id="inv-anual">R$ 0</b></div>
+            </div>
+          </div>
+
+          <div class="sec">Condições de pagamento</div>
+          <div class="pay">
+            <div class="pay-row">
+              <div class="pl"><b>Adesão</b><span>Implementação · à vista</span></div>
+              <div class="pv">R$ 5.800</div>
+            </div>
+            <div class="pay-row">
+              <div class="pl"><b>Projeto</b><span>O restante em até 12 vezes</span></div>
+              <div class="pv"><b id="pay-parc">12× R$ 0</b><span id="pay-rest">R$ 0 no total</span></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
 
     <div class="sec">Plano de implementação</div>
     <p class="sec-sub">Trinta dias de preparação para estruturar a operação, seguidos de sessenta dias de aceleração das vendas.</p>
@@ -326,32 +383,6 @@ function summaryHTML(){
       </div>
     </div>
 
-    <div class="sec">Investimento</div>
-    <div class="inv">
-      <div class="inv-main">
-        <div class="lbl">Valor total do projeto</div>
-        <div class="inv-row">
-          <div class="inv-val" id="inv-total">R$ 0</div>
-          <div class="inv-pct" id="inv-pct"></div>
-        </div>
-      </div>
-      <div class="inv-break two">
-        <div class="inv-cell"><span>Implementação</span><b>R$ 5.800</b></div>
-        <div class="inv-cell"><span>Projeto · 12 meses</span><b id="inv-anual">R$ 0</b></div>
-      </div>
-    </div>
-
-    <div class="sec">Condições de pagamento</div>
-    <div class="pay">
-      <div class="pay-row">
-        <div class="pl"><b>Adesão</b><span>Implementação · à vista</span></div>
-        <div class="pv">R$ 5.800</div>
-      </div>
-      <div class="pay-row">
-        <div class="pl"><b>Projeto</b><span>O restante em até 12 vezes</span></div>
-        <div class="pv"><b id="pay-parc">12× R$ 0</b><span id="pay-rest">R$ 0 no total</span></div>
-      </div>
-    </div>
     <div class="note"><b>Próximo passo:</b> aprovada a proposta, a DWV detalha o planejamento das entregas frente a frente ao longo dos 12 meses de projeto.</div>
 
     <div class="nav" style="margin-top:34px">
@@ -365,7 +396,7 @@ screens.innerHTML=fieldsHTML()+STEPS.map(stepHTML).join('')+summaryHTML();
 const allSteps=[...document.querySelectorAll('.step')];
 
 function go(n){
-  if(n===TOTAL_STEPS-1) buildSummary();
+  if(n===TOTAL_STEPS-1) buildSummary(true);
   current=n;
   allSteps.forEach(s=>s.classList.toggle('on',+s.dataset.i===n));
   document.getElementById('progfill').style.width=(n/(TOTAL_STEPS-1)*100)+'%';
@@ -441,7 +472,7 @@ function propNumber(empresa){
   return 'DWV-'+y+'-'+String(1000+h).padStart(4,'0');
 }
 
-function buildSummary(){
+function buildSummary(animate){
   const empresa=val('f-empresa');
   document.getElementById('sum-title').textContent=empresa?empresa:'Projeto Comercial';
 
@@ -510,7 +541,8 @@ function buildSummary(){
   const anual=mensal*12;                 // valor do projeto (12 meses)
   const total=anual+IMPLEMENTACAO;        // valor total = implementação + projeto
   document.getElementById('inv-anual').textContent=money(anual);
-  countUp(document.getElementById('inv-total'),total,n=>money(n));
+  const totalEl=document.getElementById('inv-total');
+  if(animate) countUp(totalEl,total,n=>money(n)); else totalEl.textContent=money(total);
 
   /* condições de pagamento: 5.800 adesão à vista + restante em até 12x */
   document.getElementById('pay-parc').textContent='12× '+money(mensal);
@@ -520,8 +552,9 @@ function buildSummary(){
   if(vgv>0&&total>0){
     const p=(total/vgv)*100;
     const dec=p<0.01?3:2;
-    pct.innerHTML=`<b id="pctnum">0%</b><span>do seu VGV no 1º ano</span>`;
-    countUp(document.getElementById('pctnum'),p,n=>n.toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec})+'%');
+    const fmtp=n=>n.toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec})+'%';
+    pct.innerHTML=`<b id="pctnum">${animate?'0%':fmtp(p)}</b><span>do seu VGV no 1º ano</span>`;
+    if(animate) countUp(document.getElementById('pctnum'),p,fmtp);
   }else pct.innerHTML='';
 }
 
