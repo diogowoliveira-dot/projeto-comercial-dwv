@@ -113,9 +113,18 @@ h2{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.02
 .inv-pct b{font-family:var(--display);font-size:30px;font-weight:600;color:var(--text);display:block;line-height:1}
 .inv-pct span{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:6px}
 .inv-break{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)}
+.inv-break.two{grid-template-columns:1fr 1fr}
 .inv-cell{background:var(--surface);padding:18px 20px}
 .inv-cell span{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px}
 .inv-cell b{font-family:var(--display);font-size:18px;font-weight:600}
+.pay{margin-top:6px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.pay-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;background:var(--surface)}
+.pay-row+.pay-row{border-top:1px solid var(--border)}
+.pay-row .pl b{font-family:var(--display);font-size:16px;font-weight:600;display:block}
+.pay-row .pl span{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;display:block;margin-top:4px}
+.pay-row .pv{text-align:right;flex-shrink:0}
+.pay-row .pv b{font-family:var(--display);font-size:21px;font-weight:600;display:block;line-height:1.1}
+.pay-row .pv span{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:block;margin-top:5px}
 .note{margin-top:22px;padding:18px 22px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--red);border-radius:0 12px 12px 0;font-size:13.5px;color:#D0D0D2;line-height:1.6}
 .note b{color:var(--text)}
 
@@ -320,16 +329,27 @@ function summaryHTML(){
     <div class="sec">Investimento</div>
     <div class="inv">
       <div class="inv-main">
-        <div class="lbl">Investimento mensal</div>
+        <div class="lbl">Valor total do projeto</div>
         <div class="inv-row">
-          <div class="inv-val" id="inv-mensal">R$ 0<small>/ mês</small></div>
+          <div class="inv-val" id="inv-total">R$ 0</div>
           <div class="inv-pct" id="inv-pct"></div>
         </div>
       </div>
-      <div class="inv-break">
-        <div class="inv-cell"><span>Operação · 12 meses</span><b id="inv-anual">R$ 0</b></div>
-        <div class="inv-cell"><span>Implementação (única)</span><b>R$ 5.800</b></div>
-        <div class="inv-cell"><span>Total no 1º ano</span><b id="inv-total">R$ 0</b></div>
+      <div class="inv-break two">
+        <div class="inv-cell"><span>Implementação</span><b>R$ 5.800</b></div>
+        <div class="inv-cell"><span>Projeto · 12 meses</span><b id="inv-anual">R$ 0</b></div>
+      </div>
+    </div>
+
+    <div class="sec">Condições de pagamento</div>
+    <div class="pay">
+      <div class="pay-row">
+        <div class="pl"><b>Adesão</b><span>Implementação · à vista</span></div>
+        <div class="pv">R$ 5.800</div>
+      </div>
+      <div class="pay-row">
+        <div class="pl"><b>Projeto</b><span>O restante em até 12 vezes</span></div>
+        <div class="pv"><b id="pay-parc">12× R$ 0</b><span id="pay-rest">R$ 0 no total</span></div>
       </div>
     </div>
     <div class="note"><b>Próximo passo:</b> aprovada a proposta, a DWV detalha o planejamento das entregas frente a frente ao longo dos 12 meses de projeto.</div>
@@ -404,15 +424,14 @@ function calc(){
   return{mensal,sel};
 }
 
-let countTimer;
 function countUp(el,target,fmt){
-  clearInterval(countTimer);
+  clearInterval(el._ct);                 // timer por elemento (animações independentes)
   const start=performance.now(),dur=900;
-  countTimer=setInterval(()=>{
+  el._ct=setInterval(()=>{
     const t=Math.min((performance.now()-start)/dur,1);
     const e=1-Math.pow(1-t,3);
     el.innerHTML=fmt(target*e);
-    if(t>=1)clearInterval(countTimer);
+    if(t>=1)clearInterval(el._ct);
   },16);
 }
 
@@ -488,11 +507,14 @@ function buildSummary(){
   document.getElementById('tl-d').textContent=entrega?fmtBR(entrega):'—';
 
   /* investimento */
-  const anual=mensal*12;
-  const total=anual+IMPLEMENTACAO;
+  const anual=mensal*12;                 // valor do projeto (12 meses)
+  const total=anual+IMPLEMENTACAO;        // valor total = implementação + projeto
   document.getElementById('inv-anual').textContent=money(anual);
-  document.getElementById('inv-total').textContent=money(total);
-  countUp(document.getElementById('inv-mensal'),mensal,n=>money(n)+'<small>/ mês</small>');
+  countUp(document.getElementById('inv-total'),total,n=>money(n));
+
+  /* condições de pagamento: 5.800 adesão à vista + restante em até 12x */
+  document.getElementById('pay-parc').textContent='12× '+money(mensal);
+  document.getElementById('pay-rest').textContent=money(anual)+' no total';
 
   const pct=document.getElementById('inv-pct');
   if(vgv>0&&total>0){
