@@ -355,7 +355,7 @@ function summaryHTML(){
               </div>
             </div>
             <div class="inv-break two">
-              <div class="inv-cell"><span>Implementação</span><b>R$ 5.800</b></div>
+              <div class="inv-cell"><span>Implementação</span><b id="inv-impl">R$ 5.800</b></div>
               <div class="inv-cell"><span>Projeto · 12 meses</span><b id="inv-anual">R$ 0</b></div>
             </div>
           </div>
@@ -364,7 +364,7 @@ function summaryHTML(){
           <div class="pay">
             <div class="pay-row">
               <div class="pl"><b>Adesão</b><span>Implementação · à vista</span></div>
-              <div class="pv">R$ 5.800</div>
+              <div class="pv" id="pay-adesao">R$ 5.800</div>
             </div>
             <div class="pay-row">
               <div class="pl"><b>Projeto</b><span>O restante em até 12 vezes</span></div>
@@ -546,14 +546,17 @@ function buildSummary(animate){
   document.getElementById('tl-c').textContent=setupEnd?fmtBR(setupEnd):'—';
   document.getElementById('tl-d').textContent=entrega?fmtBR(entrega):'—';
 
-  /* investimento */
-  const anual=mensal*12;                 // valor do projeto (12 meses)
-  const total=anual+IMPLEMENTACAO;        // valor total = implementação + projeto
+  /* investimento — sem projeto selecionado, não há implementação nem total */
+  const anual=mensal*12;                          // valor do projeto (12 meses)
+  const impl=mensal>0?IMPLEMENTACAO:0;            // taxa de implementação só com projeto
+  const total=mensal>0?anual+IMPLEMENTACAO:0;     // valor total = implementação + projeto
   document.getElementById('inv-anual').textContent=money(anual);
+  document.getElementById('inv-impl').textContent=money(impl);
   const totalEl=document.getElementById('inv-total');
   if(animate) countUp(totalEl,total,n=>money(n)); else totalEl.textContent=money(total);
 
-  /* condições de pagamento: 5.800 adesão à vista + restante em até 12x */
+  /* condições de pagamento: adesão (implementação) à vista + restante em até 12x */
+  document.getElementById('pay-adesao').textContent=money(impl);
   document.getElementById('pay-parc').textContent='12× '+money(mensal);
   document.getElementById('pay-rest').textContent=money(anual)+' no total';
 
